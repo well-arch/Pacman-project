@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<h1> Pacman Project </h1>
+<p> here the Hight score </p>
+<p> Here the best player</p>
+
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>Carte Pac-Man - exemple</title>
+<style>
+  body { display:flex; flex-direction:column; align-items:center; font-family:Arial, sans-serif; background:#000; color:#fff; }
+  canvas { background: #000; image-rendering: pixelated; margin-top:10px; }
+  #info { margin-top:8px; font-size:14px; }
+</style>
+</head>
+<body>
+  <h1>Carte Pac-Man (exemple)</h1>
+  <canvas id="game" width="672" height="624"></canvas>
+  <div id="info">Utilise les flèches pour déplacer Pac-Man (pas d'animation fluide ici — démo carte & collisions).</div>
+
+<script>
+// -------------------- Constantes et configuration --------------------
+const TILE_EMPTY  = 0;
+const TILE_WALL   = 1;
+const TILE_PELLET = 2;
+const TILE_POWER  = 3;
+const TILE_TELE   = 4;
+
+const tileSize = 24; // px (ajuste selon besoin)
+
+// Exemple de carte 28x26 (taille classique Pac-Man = 28 cols x 31 rows dans l'original, ici exemple simplifié)
+const mapData = [
+  // 28 colonnes par ligne ; 0 = sol, 1 = mur, 2 = pastille, 3 = super, 4 = téléporteur
+  // Petite carte d'exemple 28x26 (26 lignes) — tu peux la modifier.
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+  [1,2,1,1,1,2,1,1,1,1,2,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,2,1],
+  [1,3,1,0,1,2,1,0,0,1,2,1,2,1,0,0,1,2,1,0,1,1,2,1,0,1,3,1],
+  [1,2,1,1,1,2,1,1,1,1,2,1,2,1,1,1,1,2,1,1,1,1,2,1,1,1,2,1],
+  [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+  [1,2,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,2,1],
+  [1,2,1,0,1,2,1,1,2,1,0,0,0,0,0,0,0,1,2,1,0,1,2,1,0,1,2,1],
+  [4,2,2,0,2,2,2,2,2,2,0,1,1,1,1,1,0,2,2,2,0,2,2,2,0,2,2,4],
+  [1,2,1,0,1,2,1,1,2,1,0,1,0,0,0,1,0,1,2,1,0,1,2,1,0,1,2,1],
+  [1,2,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,2,1],
+  [1,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  // Répéter/adapter pour atteindre la hauteur souhaitée ; ici 13 lignes seulement (pour la démo)
+];
+
+// Ajuste hauteur du canvas selon mapData si nécessaire
+const rows = mapData.length;
+const cols = mapData[0].length;
+
+// -------------------- Setup canvas --------------------
+const canvas = document.getElementById('game');
+canvas.width = cols * tileSize;
+canvas.height = rows * tileSize;
+const ctx = canvas.getContext('2d');
+
+// -------------------- Entités : Pac-Man --------------------
+const player = {
+  x: 1.5 * tileSize,  // position en pixels (centre approximatif)
+  y: 1.5 * tileSize,
+  speed: 2.0,         // px par frame
+  dirX: 0,
+  dirY: 0,
+};
+
+// -------------------- Fonctions utilitaires --------------------
+function tileAt(col, row) {
+  if (row < 0 || row >= rows || col < 0 || col >= cols) return TILE_WALL;
+  return mapData[row][col];
+}
+
+function setTile(col, row, val) {
+  if (row < 0 || row >= rows || col < 0 || col >= cols) return;
+  mapData[row][col] = val;
+}
+
+function worldToTile(pos) {
+  return Math.floor(pos / tileSize);
+}
+
+// Vérifie collision mur à la position future (précise) : on teste les 4 coins de la hitbox circulaire/square
+function collidesWithWall(xPx, yPx) {
+  // Utiliser une petite marge (radius) pour le personnage
+  const radius = tileSize * 0.45;
+  const left   = xPx - radius;
+  const right  = xPx + radius;
+  const top    = yPx - radius;
+  const bottom = yPx + radius;
+
+  const colsToCheck = [
+    worldToTile(left), worldToTile(right)
+  ];
+  const rowsToCheck = [
+    worldToTile(top), worldToTile(bottom)
+  ];
+
+  for (let c of colsToCheck) {
+    for (let r of rowsToCheck) {
+      if (tileAt(c, r) === TILE_WALL) return true;
+    }
+  }
+  return false;
+}
+
+// -------------------- Logique : déplacement et collecte --------------------
+function updatePlayer() {
+  // Calcul de la prochaine position candidate
+  const nextX = player.x + player.dirX * player.speed;
+  const nextY = player.y + player.dirY * player.speed;
+
+  // Téléporteur : si la case en dessous est TELE, téléporter vers l'autre TELE (simple implémentation)
+  const tCol = worldToTile(nextX);
+  const tRow = worldToTile(nextY);
+  if (tileAt(tCol, tRow) === TILE_TELE) {
+    // Cherche autre TELE
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if ((c !== tCol || r !== tRow) && tileAt(c, r) === TILE_TELE) {
+          player.x = (c + 0.5) * tileSize;
+          player.y = (r + 0.5) * tileSize;
+          return;
+        }
+      }
+    }
+  }
+
+  // Test collisions X puis Y indépendamment (meilleure maniabilité)
+  if (!collidesWithWall(nextX, player.y)) {
+    player.x = nextX;
+  } else {
+    // s'arrête sur X
+  }
+  if (!collidesWithWall(player.x, nextY)) {
+    player.y = nextY;
+  } else {
+    // s'arrête sur Y
+  }
+
+  // Collecte des pastilles si sur une case contenant pellet
+  const col = worldToTile(player.x);
+  const row = worldToTile(player.y);
+  const tile = tileAt(col, row);
+  if (tile === TILE_PELLET) {
+    setTile(col, row, TILE_EMPTY);
+    // incrémenter score etc
+  } else if (tile === TILE_POWER) {
+    setTile(col, row, TILE_EMPTY);
+    // activer mode "power" etc
+  }
+}
+
+// -------------------- Rendu --------------------
+function drawMap() {
+  // fond
+  ctx.clearRect(0,0,canvas.width, canvas.height);
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const tile = mapData[r][c];
+      const x = c * tileSize;
+      const y = r * tileSize;
+
+      // Dessin des murs
+      if (tile === TILE_WALL) {
+        // mur plein (on peut ajouter contours arrondis / arcs pour ressembler à Pac-Man)
+        ctx.fillStyle = '#152B4A';
+        ctx.fillRect(x, y, tileSize, tileSize);
+        // contour pour lisibilité
+        ctx.strokeStyle = '#0f1c2f';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x+1, y+1, tileSize-2, tileSize-2);
+      } else {
+        // sol
+        ctx.fillStyle = '#000';
+        ctx.fillRect(x, y, tileSize, tileSize);
+
+        // pastille normale
+        if (tile === TILE_PELLET) {
+          ctx.beginPath();
+          ctx.arc(x + tileSize/2, y + tileSize/2, tileSize * 0.12, 0, Math.PI*2);
+          ctx.fillStyle = '#FFD700';
+          ctx.fill();
+        } else if (tile === TILE_POWER) {
+          ctx.beginPath();
+          ctx.arc(x + tileSize/2, y + tileSize/2, tileSize * 0.28, 0, Math.PI*2);
+          ctx.fillStyle = '#FFB6C1';
+          ctx.fill();
+        } else if (tile === TILE_TELE) {
+          // téléporteur visuel
+          ctx.strokeStyle = '#7FFFD4';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(x+4, y+4, tileSize-8, tileSize-8);
+        }
+      }
+    }
+  }
+}
+
+function drawPlayer() {
+  // Simple Pac-Man jaune (pas d'animation de bouche ici)
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, tileSize*0.45, 0, Math.PI*2);
+  ctx.fillStyle = '#FFEE00';
+  ctx.fill();
+
+  // oeil
+  ctx.beginPath();
+  ctx.arc(player.x + tileSize*0.12, player.y - tileSize*0.2, tileSize*0.08, 0, Math.PI*2);
+  ctx.fillStyle = '#000';
+  ctx.fill();
+}
+
+// -------------------- Input clavier --------------------
+window.addEventListener('keydown', (e) => {
+  switch(e.key) {
+    case 'ArrowUp':    player.dirX = 0; player.dirY = -1; break;
+    case 'ArrowDown':  player.dirX = 0; player.dirY = 1; break;
+    case 'ArrowLeft':  player.dirX = -1; player.dirY = 0; break;
+    case 'ArrowRight': player.dirX = 1; player.dirY = 0; break;
+  }
+});
+
+// -------------------- Boucle principale --------------------
+function loop() {
+  updatePlayer();
+  drawMap();
+  drawPlayer();
+  requestAnimationFrame(loop);
+}
+
+// Initialise : remplis les cases vides par des pastilles si tu veux par défaut
+function initPelletsIfEmpty() {
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (mapData[r][c] === TILE_EMPTY) {
+        mapData[r][c] = TILE_PELLET;
+      }
+    }
+  }
+  // conserve murs et téléporteurs etc.
+}
+
+// Pour la démo, on souhaite que les 0 deviennent des pastilles
+initPelletsIfEmpty();
+player.x = 1.5 * tileSize;
+player.y = 1.5 * tileSize;
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
