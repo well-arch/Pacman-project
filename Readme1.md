@@ -434,10 +434,8 @@ copies of the Software...
 
 ## 📞 Contact & Support
 
-- **Auteur :** Votre Nom
-- **Email :** votre.email@example.com
-- **GitHub :** [@votre-username](https://github.com/votre-username)
-- **Twitter :** [@votre-handle](https://twitter.com/votre-handle)
+- **Auteur :** Abel TIENE
+- **Email :** tieneabel04@gmail.com
 
 ### Support
 
