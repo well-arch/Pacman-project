@@ -1,0 +1,4 @@
+
+  body { display:flex; flex-direction:column; align-items:center; font-family:Arial, sans-serif; background:#000; color:#fff; }
+  canvas { background: #fff; image-rendering: pixelated; margin-top:10px; }
+  #info { margin-top:8px; font-size:14px; }
