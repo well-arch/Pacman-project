@@ -131,9 +131,9 @@ npm start
 
 ```
 pacman-js/
-├── index.html              # Point d'entrée HTML
-├── css/                    # Feuilles de style
-├── js/
+├── index.html             # Point d'entrée HTML
+├── css/                   # Feuilles de style
+├── src/
 │   ├── main.js            # Initialisation
 │   ├── config.js          # Configuration
 │   ├── core/              # Moteur de jeu
@@ -151,20 +151,20 @@ pacman-js/
 
 ```
 ┌─────────────────────────────────────────┐
-│              Game Loop                   │
-│         (requestAnimationFrame)          │
+│              Game Loop                  │
+│         (requestAnimationFrame)         │
 └──────────────┬──────────────────────────┘
                │
     ┌──────────┴──────────┐
     │                     │
-┌───▼────┐          ┌────▼─────┐
-│ Update │          │  Render  │
-└───┬────┘          └────┬─────┘
-    │                    │
-    ├─ Entities          ├─ Maze
-    ├─ AI                ├─ Entities
-    ├─ Collisions        ├─ UI
-    ├─ Systems           └─ Effects
+┌───▼────┐           ┌────▼─────┐
+│ Update │           │  Render  │
+└───┬────┘           └────┬─────┘
+    │                     │
+    ├─ Entities           ├─ Maze
+    ├─ AI                 ├─ Entities
+    ├─ Collisions         ├─ UI
+    ├─ Systems            └─ Effects
     └─ Input
 ```
 
@@ -235,7 +235,7 @@ npm run dev
 
 ### Structure des Fichiers Clés
 
-#### `js/main.js`
+#### `src/main.js`
 Point d'entrée principal qui initialise le jeu.
 
 ```javascript
@@ -249,7 +249,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 ```
 
-#### `js/config.js`
+#### `src/config.js`
 Configuration centralisée du jeu.
 
 ```javascript
@@ -272,7 +272,7 @@ export default {
 
 ### Ajouter un Nouveau Niveau
 
-1. Créez une matrice 28×31 dans `js/map/levels.js`
+1. Créez une matrice 28×13 dans `src/map/levels.js`
 2. Définissez les paramètres du niveau
 3. Enregistrez le niveau dans l'export
 
@@ -281,7 +281,7 @@ export const level2 = {
   id: 2,
   grid: [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    // ... 29 autres lignes
+    // ... 13 autres lignes
   ],
   ghostSpeed: 0.8,
   frightDuration: 5000
@@ -385,7 +385,7 @@ class ghost {
 
 ### Rapporter des Bugs
 
-Utilisez les [Issues GitHub](https://github.com/votre-username/pacman-js/issues) en précisant :
+Utilisez les [Issues GitHub](https://github.com/well-arch/pacman-js/issues) en précisant :
 - Description du bug
 - Steps pour le reproduire
 - Comportement attendu vs observé
@@ -399,7 +399,7 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 ```
 MIT License
 
-Copyright (c) 2025 Votre Nom
+Copyright (c) 2025 Votre Abel
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
