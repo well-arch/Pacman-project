@@ -10,17 +10,17 @@ Une recréation fidèle du jeu d'arcade classique Pac-Man en JavaScript pur, uti
 
 ## 📋 Table des Matières
 
-- [Caractéristiques](#-caractéristiques)
-- [Démo](#-démo)
-- [Installation](#-installation)
-- [Utilisation](#-utilisation)
-- [Architecture](#-architecture)
-- [Mécaniques de Jeu](#-mécaniques-de-jeu)
-- [Développement](#-développement)
-- [Roadmap](#-roadmap)
-- [Contribution](#-contribution)
-- [License](#-license)
-- [Crédits](#-crédits)
+- [Caractéristiques](#caractéristiques)
+- [Démo](#démo)
+- [Installation](#installation)
+- [Utilisation](#utilisation)
+- [Architecture](#architecture)
+- [Mécaniques de Jeu](#mécaniques-de-jeu)
+- [Développement](#développement)
+- [Roadmap](#roadmap)
+- [Contribution](#contribution)
+- [License](#license)
+- [Crédits](#crédits)
 
 ## ✨ Caractéristiques
 
@@ -125,7 +125,7 @@ npm start
 | Pomme | 700 pts |
 | Melon | 1000 pts |
 
-## 🏗️ Architecture
+## 🗂️ Architecture
 
 ### Structure du Projet
 
@@ -215,7 +215,7 @@ Chaque fantôme a une personnalité unique et une stratégie de poursuite diffé
 - ⚡ Vitesse des fantômes augmente
 - ⏱️ Durée du mode Frightened diminue
 - 🎯 Comportement des fantômes devient plus agressif
-- 🍎 Nouveaux fruits avec plus de points
+- 🎁 Nouveaux fruits avec plus de points
 
 ## 💻 Développement
 
