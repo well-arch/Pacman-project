@@ -1,11 +1,12 @@
-export
+import { TILE_EMPTY, TILE_WALL, TILE_PELLET } from "../config";
 
 class Maze {
-  
-  STATE_EMPTY = 0;
-  STAT_WALL = 1;
-  STAT_DOOR = 2;
-  STAT_TILL = 3; 
+
+  constructor(abs, ord, state) {
+    this.abs = abs;
+    this.ord = ord;
+    this.state = state;
+  }
 
 
 }
