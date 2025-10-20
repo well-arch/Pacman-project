@@ -14,7 +14,7 @@ Une recréation fidèle du jeu d'arcade classique Pac-Man en JavaScript pur, uti
 - [Démo](#-démo)
 - [Installation](#-installation)
 - [Utilisation](#-utilisation)
-- [Architecture](#-architecture)
+- [Architecture](#%EF%B8%8F-architecture)
 - [Mécaniques de Jeu](#-mécaniques-de-jeu)
 - [Développement](#-développement)
 - [Roadmap](#%EF%B8%8F-roadmap)
